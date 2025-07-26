@@ -1,9 +1,9 @@
-use std::sync::Arc;
 use axum::extract::State;
-use chaincash_services::ServerState;
 use axum::http::StatusCode;
-use serde_json::{json, Value};
 use axum::Json;
+use chaincash_services::ServerState;
+use serde_json::{json, Value};
+use std::sync::Arc;
 
 pub async fn healthcheck(
     State(state): State<Arc<ServerState>>,
@@ -38,7 +38,7 @@ pub async fn healthcheck(
             format!("Invalid JSON response: {}", e),
         )
     })?;
-     let combined = json!({
+    let combined = json!({
         "status": "Node running",
         "response": response_json
     });
