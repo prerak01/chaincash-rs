@@ -16,7 +16,6 @@ pub async fn healthcheck(State(state): State<Arc<ServerState>>) -> Result<Json<V
     let response_json: Value = serde_json::from_str(&response)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Invalid JSON response: {}", e)))?;
 
-    // Combine into one JSON object
     let combined = json!({
         "status": "Node running",
         "response": response_json
