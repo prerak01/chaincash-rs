@@ -1,0 +1,26 @@
+use std::sync::Arc;
+use axum::extract::State;
+use chaincash_services::ServerState;
+use axum::http::StatusCode;
+use serde_json::{json, Value};
+use axum::Json;
+
+pub async fn healthcheck(State(state): State<Arc<ServerState>>) -> Result<Json<Value>, (StatusCode, String)> {
+   let url = state.node.endpoints().url(); 
+   let url2 = url.join("blockchain/indexedHeight").map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to join URL: {}", e)))?;
+   let response = reqwest::get(url2).await
+   .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to make request: {}", e)))?
+   .text().await
+   .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to get response text: {}", e)))?;
+   
+    let response_json: Value = serde_json::from_str(&response)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Invalid JSON response: {}", e)))?;
+
+    // Combine into one JSON object
+    let combined = json!({
+        "status": "Node running",
+        "response": response_json
+    });
+
+    Ok(Json(combined))
+}

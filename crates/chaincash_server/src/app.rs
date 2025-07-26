@@ -6,13 +6,14 @@ use chaincash_services::ServerState;
 use tracing::info;
 
 use crate::api;
+use crate::healthcheck;
 
 pub struct Server;
 
 impl Server {
     pub fn router() -> Router<Arc<ServerState>> {
         Router::new()
-            .route("/healthcheck", get(|| async { "ok" }))
+            .route("/healthcheck", get(healthcheck::healthcheck))
             .nest("/api", api::router())
     }
 
